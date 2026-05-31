@@ -1,0 +1,39 @@
+sequenceDiagram
+    participant U as User
+    participant D as Device (Agent)
+    participant PEP as Policy Enforcement Point
+    participant PDP as Policy Decision Point
+    participant TS as Trust Score Calculator
+    participant RES as Protected Resource
+
+    U->>PEP: Request access to resource
+    activate PEP
+    PEP->>PDP: evaluate(request, deviceID, userID)
+    activate PDP
+    PDP->>D: request MFA + device posture
+    D-->>PDP: MFA token, posture data
+    PDP->>TS: calculateTrust(user, device, context)
+    TS-->>PDP: trustScore = 0.92
+    PDP->>PDP: match against policy rules
+    alt trustScore >= threshold (0.75)
+        PDP-->>PEP: Decision = GRANT (sessionID)
+        PEP->>RES: Allow access
+        PEP-->>U: Access granted
+        Note over PDP,TS: Start continuous re-evaluation loop
+        loop every 5 minutes
+            PDP->>D: refresh posture & behavioural data
+            D-->>PDP: updated data
+            PDP->>TS: recalculate trust
+            TS-->>PDP: new trustScore = 0.65
+            alt trustScore < threshold
+                PDP->>PEP: Decision = REVOKE
+                PEP->>RES: Terminate connection
+                PEP-->>U: Session terminated
+            end
+        end
+    else trustScore < threshold
+        PDP-->>PEP: Decision = DENY
+        PEP-->>U: Access denied
+    end
+    deactivate PEP
+    deactivate PDP

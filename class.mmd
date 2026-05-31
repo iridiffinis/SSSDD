@@ -1,0 +1,63 @@
+classDiagram
+    class AccessRequest {
+        +String userId
+        +String deviceId
+        +String resourceId
+        +String action (read/write/execute)
+        +Timestamp requestTime
+        +toPolicyInput() Map
+    }
+
+    class TrustScoreCalculator {
+        -float identityWeight
+        -float deviceWeight
+        -float behaviourWeight
+        +calculate(AccessRequest, DevicePosture, UserHistory) float
+        +updateModel(Anomaly) void
+    }
+
+    class DevicePosture {
+        +String deviceId
+        +boolean diskEncrypted
+        +boolean firewallEnabled
+        +String osVersion
+        +boolean patched
+        +float riskScore
+    }
+
+    class PolicyRule {
+        +String ruleId
+        +String subjectPattern
+        +String resourcePattern
+        +List~String~ allowedActions
+        +Condition condition (e.g., trustScore > 0.75)
+        +match(AccessRequest, float) boolean
+    }
+
+    class PolicyDecisionPoint {
+        -List~PolicyRule~ rules
+        +evaluate(AccessRequest, float) Decision
+    }
+
+    class PolicyEnforcementPoint {
+        -PolicyDecisionPoint pdp
+        -Logger logger
+        +enforce(AccessRequest) boolean
+        +logOutcome(AccessRequest, Decision) void
+    }
+
+    class SessionContext {
+        +String sessionId
+        +AccessRequest originalRequest
+        +float currentTrustScore
+        +long lastVerified
+        +reEvaluate() void
+    }
+
+    TrustScoreCalculator --> AccessRequest : uses
+    TrustScoreCalculator --> DevicePosture : uses
+    PolicyDecisionPoint --> PolicyRule : contains
+    PolicyDecisionPoint --> TrustScoreCalculator : uses
+    PolicyEnforcementPoint --> PolicyDecisionPoint : delegates
+    SessionContext --> AccessRequest : references
+    SessionContext --> TrustScoreCalculator : periodically re-evaluates

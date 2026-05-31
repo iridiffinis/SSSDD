@@ -1,0 +1,16 @@
+flowchart LR
+
+U[User]
+D[Device]
+IAM[Identity and Access Management]
+PDP[Policy Decision Point]
+PEP[Policy Enforcement Point]
+APP[Enterprise Applications]
+DATA[Protected Data]
+
+U --> IAM
+D --> IAM
+IAM --> PDP
+PDP --> PEP
+PEP --> APP
+APP --> DATA

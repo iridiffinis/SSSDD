@@ -1,0 +1,30 @@
+graph TD
+    actor_user("End User")
+    actor_device("User Device")
+    actor_admin("Security Admin")
+
+    system_boundary("Zero Trust Architecture Framework")
+
+    actor_user -->|initiates| UC1("Request Access to Resource")
+    actor_device -->|provides| UC2("Device Posture Data")
+    actor_admin -->|defines| UC3("Create Access Policy")
+    actor_admin -->|monitors| UC4("View Audit Logs")
+
+    subgraph system_boundary
+        UC5("Multi-Factor Authentication (MFA)")
+        UC6("Evaluate Trust Score")
+        UC7("Policy Decision Point (PDP)")
+        UC8("Policy Enforcement Point (PEP)")
+        UC9("Continuous Session Monitoring")
+        UC10("Logging & Anomaly Detection")
+    end
+
+    UC1 --> UC5
+    UC5 --> UC6
+    UC2 --> UC6
+    UC3 --> UC7
+    UC6 --> UC7
+    UC7 --> UC8
+    UC8 --> UC9
+    UC9 --> UC10
+    UC10 --> UC4

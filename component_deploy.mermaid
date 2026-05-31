@@ -1,0 +1,38 @@
+graph TD
+    subgraph User_Device["User Device"]
+        A[Agent: Posture Collector]
+        B[App: Browser / Client]
+    end
+
+    subgraph Edge["Edge / Service Mesh"]
+        C[PEP: Envoy Sidecar]
+    end
+
+    subgraph Control_Plane["Central Control Plane (Cloud / On‑Prem)"]
+        D[Policy Engine]
+        E[Policy Administrator]
+        F[Trust Score Engine]
+        G[Directory Service (IdP)]
+    end
+
+    subgraph Logging["Logging & Analytics"]
+        H[SIEM / Audit Store]
+        I[Anomaly Detector]
+    end
+
+    subgraph Resources["Protected Resources"]
+        J[Database]
+        K[Internal API]
+    end
+
+    B -->|request| C
+    A -->|periodic posture| G
+    C -->|authorization query| E
+    E --> D
+    D --> F
+    D --> G
+    C -->|logs| H
+    F --> I
+    I --> H
+    C -->|allowed traffic| J
+    C -->|allowed traffic| K
